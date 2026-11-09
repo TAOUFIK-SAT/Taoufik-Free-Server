@@ -1,34 +1,5 @@
-#!/bin/sh
-# =========================================================
-# INSTALLER SCRIPT FOR TAOUFIK FREE SERVER ENIGMA2 PLUGIN
-# DEVELOPED BY KHALED © 2026
-# =========================================================
-
-PLUGIN_DIR="/usr/lib/enigma2/python/Plugins/Extensions/TaoufikFreeServer"
-TMP_DIR="/tmp/taoufik_install"
-
-echo "================================================="
-echo "   🚀 Starting TAOUFIK FREE SERVER Installation   "
-echo "================================================="
-
-# 1. Vérification et création des dossiers nécessaires
-mkdir -p "$PLUGIN_DIR"
-mkdir -p "$TMP_DIR"
-mkdir -p /etc/tuxbox/config
-
-# 2. Vérification des dépendances (wget et python)
-echo "[+] Checking system dependencies..."
-if ! command -v wget >/dev/null 2>&1; then
-    echo "[!] Wget is missing. Installing wget..."
-    opkg update && opkg install wget
-fi
-
-# 3. Écriture directe du plugin.py dans le répertoire d'extension
-echo "[+] Creating plugin structure..."
-
-cat << 'EOF' > "$PLUGIN_DIR/plugin.py"
 # -*- coding: utf-8 -*-
-# DEVELOPED BY KHALED © 2026
+# DEVELOPED BY TAOUFIK © 2026 - PROFESSIONAL PANEL ENGINE
 from Plugins.Plugin import PluginDescriptor
 from Screens.Screen import Screen
 from Components.ActionMap import ActionMap
@@ -38,15 +9,26 @@ from Screens.Console import Console
 import os
 
 class TaoufikFreeServerPanel(Screen):
+	# تصميم الواجهة الرئيسية للبانل بصيغة XML متوافقة مع كافة صور Enigma2
 	skin = """
-	<screen name="TaoufikFreeServerPanel" position="center,center" size="850,520" title="TAOUFIK FREE SERVER" backgroundColor="#0d1b2a">
-		<widget name="header_label" position="0,0" size="850,60" font="Regular;24" halign="center" valign="center" backgroundColor="#1b263b" textColor="#00b4d8" transparent="0" zIndex="1" />
-		<widget name="menu_list" position="40,80" size="770,220" backgroundColor="#1b263b" font="Regular;20" itemHeight="45" scrollbarMode="showOnDemand" zIndex="2" />
-		<widget name="status_label" position="40,315" size="770,70" font="Regular;16" halign="center" valign="center" textColor="#ffffff" backgroundColor="#1b263b" transparent="0" zIndex="2" />
-		<widget name="key_red" position="40,430" size="185,45" backgroundColor="#cf6679" foregroundColor="#000000" zPosition="2" transparent="0" font="Regular;19" halign="center" valign="center" />
-		<widget name="key_green" position="235,430" size="185,45" backgroundColor="#3ddc84" foregroundColor="#000000" zPosition="2" transparent="0" font="Regular;19" halign="center" valign="center" />
-		<widget name="key_yellow" position="430,430" size="185,45" backgroundColor="#f1c40f" foregroundColor="#000000" zPosition="2" transparent="0" font="Regular;19" halign="center" valign="center" />
-		<widget name="key_blue" position="625,430" size="185,45" backgroundColor="#00b4d8" foregroundColor="#000000" zPosition="2" transparent="0" font="Regular;19" halign="center" valign="center" />
+	<screen name="TaoufikFreeServerPanel" position="center,center" size="880,550" title="TAOUFIK FREE SERVER PANEL v2.0" backgroundColor="#0d1b2a">
+		<!-- الشريط العلوي -->
+		<widget name="header_label" position="0,0" size="880,65" font="Regular;26" halign="center" valign="center" backgroundColor="#1b263b" textColor="#00b4d8" transparent="0" zIndex="1" />
+		
+		<!-- قائمة الخيارات الرئيسية -->
+		<widget name="menu_list" position="40,85" size="800,240" backgroundColor="#1b263b" font="Regular;20" itemHeight="48" scrollbarMode="showOnDemand" zIndex="2" />
+		
+		<!-- شريط الحالة والوصف -->
+		<widget name="status_label" position="40,340" size="800,75" font="Regular;17" halign="center" valign="center" textColor="#ffffff" backgroundColor="#1b263b" transparent="0" zIndex="2" />
+		
+		<!-- التوقيع والحقوق -->
+		<label text="DEVELOPED BY TAOUFIK © 2026" position="40,425" size="800,25" font="Regular;15" halign="center" textColor="#708090" transparent="1" />
+
+		<!-- أزرار التحكم الملونة -->
+		<widget name="key_red" position="40,465" size="190,50" backgroundColor="#cf6679" foregroundColor="#000000" zPosition="2" transparent="0" font="Regular;19" halign="center" valign="center" />
+		<widget name="key_green" position="243,465" size="190,50" backgroundColor="#3ddc84" foregroundColor="#000000" zPosition="2" transparent="0" font="Regular;19" halign="center" valign="center" />
+		<widget name="key_yellow" position="446,465" size="190,50" backgroundColor="#f1c40f" foregroundColor="#000000" zPosition="2" transparent="0" font="Regular;19" halign="center" valign="center" />
+		<widget name="key_blue" position="650,465" size="190,50" backgroundColor="#00b4d8" foregroundColor="#000000" zPosition="2" transparent="0" font="Regular;19" halign="center" valign="center" />
 	</screen>
 	"""
 
@@ -54,27 +36,31 @@ class TaoufikFreeServerPanel(Screen):
 		Screen.__init__(self, session)
 		self.session = session
 		
-		self["header_label"] = Label("⚡ TAOUFIK FREE SERVER")
-		self["status_label"] = Label("اختر العملية من القائمة أعلاه أو اضغط مباشرة على الأزرار الملونة بالأسفل.")
+		self["header_label"] = Label("⚡ TAOUFIK FREE SERVER PANEL v2.0")
+		self["status_label"] = Label("حدد الإجراء المطلوب من القائمة أعلاه ثم اضغط OK أو استخدم الأزرار الملونة.")
 		
+		# قائمة الإضافات والخيارات الاحترافية
 		self.menuitems = [
 			("🚀 جلب وتحديث السيرفرات المجانية (CCcam & Newcamd)", self.run_embedded_script),
+			("🔄 إعادة تشغيل محاكي OSCam / NCam فوراً", self.restart_cam),
 			("🔍 فحص الاتصال والتشخيص السريع للبيئة", self.run_manual_check),
-			("📂 التحقق من حالة مسارات ملفات التشكيل (Config)", self.show_config_info),
+			("📂 التحقق من مسارات وأوضاع ملفات Config", self.show_config_info),
+			("🧹 تنظيف وحذف السيرفرات المجانية المضافة", self.clean_added_servers),
 			("❌ خروج من البانل", self.close)
 		]
 		
 		self["menu_list"] = MenuList([x[0] for x in self.menuitems])
 		
+		# تسميات الأزرار الملونة
 		self["key_red"] = Label("خروج (Red)")
-		self["key_green"] = Label("تنفيذ (Green)")
-		self["key_yellow"] = Label("الملفات (Yellow)")
-		self["key_blue"] = Label("فحص (Blue)")
+		self["key_green"] = Label("جلب السيرفرات")
+		self["key_yellow"] = Label("إعادة الكام")
+		self["key_blue"] = Label("فحص النظام")
 		
 		self["actions"] = ActionMap(["SetupActions", "ColorActions", "DirectionActions"], {
 			"red": self.close,
-			"green": self.okClicked,
-			"yellow": self.show_config_info,
+			"green": self.run_embedded_script,
+			"yellow": self.restart_cam,
 			"blue": self.run_manual_check,
 			"ok": self.okClicked,
 			"cancel": self.close
@@ -89,7 +75,7 @@ class TaoufikFreeServerPanel(Screen):
 
 	def run_embedded_script(self):
 		shell_script_content = r"""#!/bin/sh
-# DEVELOPED BY KHALED © 2026 - WGET BACKBONE ENGINE FOR UNIVERSAL COMPATIBILITY
+# DEVELOPED BY TAOUFIK © 2026 - ADVANCED SCRAPING ENGINE
 LOG_FILE="/tmp/downloader.log"
 
 OUTPUT_FILE="/etc/tuxbox/config/ncam.server"
@@ -121,7 +107,7 @@ CONVERTED_FILE="/tmp/servers_converted.txt"
 > "$TEMP_FILE"
 > "$CONVERTED_FILE"
 
-echo "=== Panel Engine: Scraping Live Feeds ==="
+echo "=== Scraping Live Feeds (Wget Universal Engine) ==="
 
 parse_servers() {
     local content="$1"
@@ -159,7 +145,7 @@ convert_to_oscam() {
     
     if [ "$protocol_type" = "C" ] || [ "$protocol_type" = "c" ]; then
         echo "[reader]"
-        echo "label = ${host}_${port}"
+        echo "label = TAOUFIK_${host}_${port}"
         echo "protocol = cccam"
         echo "device = ${host},${port}"
         echo "user = ${user}"
@@ -173,7 +159,7 @@ convert_to_oscam() {
     elif [ "$protocol_type" = "N" ] || [ "$protocol_type" = "n" ] && [ "${#parts[@]}" -ge 6 ]; then
         local key="${parts[5]}"
         echo "[reader]"
-        echo "label = ${host}_${port}"
+        echo "label = TAOUFIK_${host}_${port}"
         echo "enable = 1"
         echo "protocol = newcamd"
         echo "key = ${key}"
@@ -193,8 +179,8 @@ if [ -s "$TEMP_FILE" ]; then
     FINAL_COUNT=$(wc -l < "$FINAL_FILE")
     
     if [ "$FINAL_COUNT" -gt 0 ]; then
-        START_MARKER="#--- TAOUFIK FREE SERVER START ---"
-        END_MARKER="#--- TAOUFIK FREE SERVER END ---"
+        START_MARKER="#--- TAOUFIK FREE START ---"
+        END_MARKER="#--- TAOUFIK FREE END ---"
         
         while IFS= read -r line; do
             convert_to_oscam "$line" >> "$CONVERTED_FILE"
@@ -221,7 +207,7 @@ else
     echo "--> No servers found from any active source."
 fi
 
-rm -f "$TEMP_FILE" "$FINAL_FILE" "$CONVERTED_FILE" "$TEMP_FILE.download" 2>/dev/null
+rm -f "$TEMP_FILE" "$FINAL_FILE" "$CONVERTED_FILE" "$TEMP_FILE.download" 2>/devnull
 """
 
 		try:
@@ -230,21 +216,39 @@ rm -f "$TEMP_FILE" "$FINAL_FILE" "$CONVERTED_FILE" "$TEMP_FILE.download" 2>/dev/
 			
 			os.system("chmod 755 %s" % self.temp_script_path)
 			cmd = "sh %s" % self.temp_script_path
-			self.session.open(Console, title="TAOUFIK FREE SERVER - Live Panel Console", cmdlist=[cmd])
+			self.session.open(Console, title="TAOUFIK FREE SERVER - Engine Console", cmdlist=[cmd])
 		except Exception as e:
 			self["status_label"].setText("خطأ في إنشاء ملف التشغيل المؤقت!")
+
+	def restart_cam(self):
+		cmd = "echo 'Restarting Softcam...' && (killall -9 oscam ncam 2>/dev/null; sleep 1; /usr/bin/oscam & /usr/bin/ncam &) && echo 'Done!'"
+		self.session.open(Console, title="TAOUFIK FREE SERVER - Softcam Restart", cmdlist=[cmd])
+
+	def clean_added_servers(self):
+		cmd = r"""
+		START_MARKER="#--- TAOUFIK FREE START ---"
+		END_MARKER="#--- TAOUFIK FREE END ---"
+		for config_path in "/etc/tuxbox/config/ncam.server" "/etc/tuxbox/config/oscam.server"; do
+			if [ -f "$config_path" ]; then
+				sed -i "/$START_MARKER/,/$END_MARKER/d" "$config_path"
+				sed -i '/^$/N;/^\n$/D' "$config_path"
+			fi
+		done
+		echo "Cleaned all TAOUFIK Free Servers successfully!"
+		"""
+		self.session.open(Console, title="TAOUFIK FREE SERVER - Clean Configs", cmdlist=[cmd])
 
 	def show_config_info(self):
 		ncam_exists = os.path.exists("/etc/tuxbox/config/ncam.server")
 		oscam_exists = os.path.exists("/etc/tuxbox/config/oscam.server")
 		msg = "حالة مسارات التشكيل:\n- NCam Config: %s | - OSCam Config: %s" % (
-			'موجود' if ncam_exists else 'غير متوفر',
-			'موجود' if oscam_exists else 'غير متوفر'
+			'موجود ✅' if ncam_exists else 'غير متوفر ❌',
+			'موجود ✅' if oscam_exists else 'غير متوفر ❌'
 		)
 		self["status_label"].setText(msg)
 
 	def run_manual_check(self):
-		cmd = "echo '=== Diagnostic & Environment Check ===' && opkg list-installed | grep -E 'oscam|ncam|wget'"
+		cmd = "echo '=== Diagnostic Check ===' && opkg list-installed | grep -E 'oscam|ncam|wget' && ping -c 2 google.com"
 		self.session.open(Console, title="TAOUFIK FREE SERVER - Diagnostics", cmdlist=[cmd])
 
 def main(session, **kwargs):
@@ -253,26 +257,8 @@ def main(session, **kwargs):
 def Plugins(**kwargs):
 	return [PluginDescriptor(
 		name="TAOUFIK FREE SERVER",
-		description="Free Server Panel Menu for Enigma2",
+		description="Professional Free Server Scraper Panel for Enigma2",
 		where=PluginDescriptor.WHERE_PLUGINMENU,
 		icon="plugin.png",
 		fnc=main
 	)]
-EOF
-
-# 4. Création du fichier __init__.py obligatoire
-touch "$PLUGIN_DIR/__init__.py"
-
-# 5. Définition des permissions
-chmod -R 755 "$PLUGIN_DIR"
-
-# 6. Nettoyage des fichiers temporaires
-rm -rf "$TMP_DIR"
-
-echo "================================================="
-echo "   ✅ TAOUFIK FREE SERVER Installed Successfully! "
-echo "   🔄 Restarting Enigma2 GUI...                  "
-echo "================================================="
-
-# Redémarrage de l'interface Enigma2
-killall -9 enigma2
